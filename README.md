@@ -36,14 +36,14 @@ sequenceDiagram
     API-->>UI: JWT Access Token (24 Saatlik)
     
     %% 2. ŞİFRE EKLEME VE ANALİZ (ÖNEMLİ)
-    Note over User, DB: 🛡️ Şifre Güvenlik Analizi
+    Note over User DB: 🛡️ Şifre Güvenlik Analizi
     User->>UI: "Yeni Şifre Ekle" (Hesap + Şifre)
     UI->>API: POST /api/passwords/{uid}
     
     rect rgb(30, 0, 30)
         API->>API: Token Doğrula (Bearer)
         API->>API: Şifre Gücünü Analiz Et (Regex)
-        Note right of API: Kriterler: Uzunluk, Büyük Harf, Sayı
+        Note right of API: Kriterler: Uzunluk Büyük Harf Sayı
     end
     
     API->>DB: Şifreyi Kaydet (Güç Skoru ile)
