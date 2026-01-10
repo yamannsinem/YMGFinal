@@ -2,8 +2,6 @@
 ### (Microservices + AI Agents + Secure Vault + Monitoring)
 Not: Proje docker-compose up --build komutu ile çalıştırılmak üzere tasarlanmıştır. Veritabanının (PostgreSQL) sağlık kontrolü (healthcheck) tamamlanmadan Backend servisi başlamayacaktır, bu nedenle ilk açılışta lütfen 30-60 saniye bekleyiniz. Test ortamında port çakışması yaşanmaması için 80 ve 8000 portlarının boş olduğundan emin olunuz.
 
-![Velora OS Banner](https://via.placeholder.com/1000x300/4a044e/ffffff?text=Velora+OS+-+Purple+Edition)
-
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
@@ -31,17 +29,17 @@ Mikroservis mimarisi üzerine kurulu olan sistem, arka planda çalışan **Yapay
 
 ##  2. Değerlendirme Tablosu (Rubric)
 
-| Durum | Değerlendirme Kriteri | İlgili Dosya/Konum |
-| :---: | :--- | :--- |
-| ✅ | **DockerFile ve Compose Dosyası** | `Dockerfile`, `docker-compose.yml` |
-| ✅ | **Servisin Ayağa Kalkması** | `depends_on` ve `healthcheck` mekanizması aktif. |
-| ✅ | **Port Yayını** | Backend: **8000**, Frontend: **80** portunda. |
-| ✅ | **Swagger Dokümantasyonu** | `/docs` ve `swagger.yaml` |
-| ✅ | **MermaidJS Kodu** | Aşağıdaki "Sistem Mimarisi" başlığında render edilmiştir. |
-| ✅ | **JWT/Bearer Korumalı Endpoint** | `/api/tasks`, `/api/passwords` (Token zorunlu) |
-| ✅ | **Public (Tokensız) Endpoint** | `/metrics` ve `/api/quote` |
-| ✅ | **Veritabanı (DB)** | **PostgreSQL** (Docker servisi olarak) |
-| ✅ | **Bonus: AI Güvenlik Raporu** | `AI_SECURITY_REPORT.md` (Öneriler koda işlenmiştir) |
+ | Değerlendirme Kriteri | İlgili Dosya/Konum |
+ | :--- | :--- |
+ | **DockerFile ve Compose Dosyası** | `Dockerfile`, `docker-compose.yml` |
+ | **Servisin Ayağa Kalkması** | `depends_on` ve `healthcheck` mekanizması aktif. |
+ | **Port Yayını** | Backend: **8000**, Frontend: **80** portunda. |
+ | **Swagger Dokümantasyonu** | `/docs` ve `swagger.yaml` |
+ | **MermaidJS Kodu** | Aşağıdaki "Sistem Mimarisi" başlığında render edilmiştir. |
+ | **JWT/Bearer Korumalı Endpoint** | `/api/tasks`, `/api/passwords` (Token zorunlu) |
+ | **Public (Tokensız) Endpoint** | `/metrics` ve `/api/quote` |
+ | **Veritabanı (DB)** | **PostgreSQL** (Docker servisi olarak) |
+ | ** AI Güvenlik Raporu** | `AI_SECURITY_REPORT.md` (Öneriler koda işlenmiştir) |
 
 ---
 
@@ -83,6 +81,7 @@ sequenceDiagram
     API->>DB: Şifreleri Çek
     DB-->>API: Şifre Listesi
     API-->>UI: Listeyi Ekranda Göster
+```
 
 | Alan           | Açıklama                                     |
 | -------------- | -------------------------------------------- |
