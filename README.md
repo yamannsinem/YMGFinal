@@ -1,24 +1,52 @@
 # 🛡️ Velora OS - Akıllı Kişisel Asistan & Şifre Yöneticisi
 ### (Microservices + AI Agents + Secure Vault + Monitoring)
+Not: Proje docker-compose up --build komutu ile çalıştırılmak üzere tasarlanmıştır. Veritabanının (PostgreSQL) sağlık kontrolü (healthcheck) tamamlanmadan Backend servisi başlamayacaktır, bu nedenle ilk açılışta lütfen 30-60 saniye bekleyiniz. Test ortamında port çakışması yaşanmaması için 80 ve 8000 portlarının boş olduğundan emin olunuz.
 
 ![Velora OS Banner](https://via.placeholder.com/1000x300/4a044e/ffffff?text=Velora+OS+-+Purple+Edition)
 
-## 🚀 Proje Genel Bakış
-**Velora OS**; kullanıcıların günlük görevlerini yönettiği, notlarını tuttuğu ve en önemlisi **hassas şifrelerini güvenle sakladığı** modern bir web platformudur. Mikroservis mimarisi üzerine kurulu olan sistem, arka planda çalışan yapay zeka ajanları ile sistem sağlığını denetler ve kullanıcının veri güvenliğini (Password Strength Analysis) aktif olarak analiz eder.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-Framework-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/AI-Ollama-black?style=for-the-badge&logo=openai&logoColor=white" />
+</p>
 
 ---
 
-## 🧱 Sistem Mimarisi ve Veri Akışı
+## 🚀 1. Proje Genel Bakış
+**Velora OS**; kullanıcıların günlük görevlerini yönettiği, notlarını tuttuğu ve en önemlisi **hassas şifrelerini güvenle sakladığı** modern bir web platformudur. 
 
-Bu proje tam izole edilmiş **Docker Konteynerleri** üzerinde çalışır.
+Mikroservis mimarisi üzerine kurulu olan sistem, arka planda çalışan **Yapay Zeka (AI) Ajanları** ile sistem sağlığını denetler ve kullanıcının veri güvenliğini (Password Strength Analysis) aktif olarak analiz eder.
 
-* **Frontend (Nginx):** "Glassmorphism" tasarım diline sahip modern arayüz.
-* **Backend (FastAPI):** Asenkron çalışan, Pydantic ile veri doğrulayan ana sunucu.
-* **Security Layer:** JWT tabanlı oturum ve Bcrypt tabanlı şifreleme katmanı.
-* **AI Layer (Ollama/MCP):** Verileri analiz eden ve raporlayan yapay zeka motoru.
+| Proje Künyesi | Detaylar |
+| :--- | :--- |
+| **Proje Adı** | Velora OS (Purple Edition) |
+| **Tür** | Akıllı Kişisel Asistan & Güvenli Veri Kasası |
+| **Mimari** | Mikroservis (Docker & Docker Compose) |
+| **API Türü** | RESTful API (FastAPI) |
+| **Dokümantasyon** | Swagger UI (OpenAPI 3.0) |
 
-### 📊 Sistem Akış Şeması (Sequence Diagram)
-Aşağıdaki diyagram, kullanıcının sisteme giriş yapması ve **yeni bir şifre kaydederken** sistemin nasıl güvenlik kontrolü yaptığını göstermektedir:
+---
+
+##  2. Değerlendirme Tablosu (Rubric)
+
+| Durum | Değerlendirme Kriteri | İlgili Dosya/Konum |
+| :---: | :--- | :--- |
+| ✅ | **DockerFile ve Compose Dosyası** | `Dockerfile`, `docker-compose.yml` |
+| ✅ | **Servisin Ayağa Kalkması** | `depends_on` ve `healthcheck` mekanizması aktif. |
+| ✅ | **Port Yayını** | Backend: **8000**, Frontend: **80** portunda. |
+| ✅ | **Swagger Dokümantasyonu** | `/docs` ve `swagger.yaml` |
+| ✅ | **MermaidJS Kodu** | Aşağıdaki "Sistem Mimarisi" başlığında render edilmiştir. |
+| ✅ | **JWT/Bearer Korumalı Endpoint** | `/api/tasks`, `/api/passwords` (Token zorunlu) |
+| ✅ | **Public (Tokensız) Endpoint** | `/metrics` ve `/api/quote` |
+| ✅ | **Veritabanı (DB)** | **PostgreSQL** (Docker servisi olarak) |
+| ✅ | **Bonus: AI Güvenlik Raporu** | `AI_SECURITY_REPORT.md` (Öneriler koda işlenmiştir) |
+
+---
+
+## 📊 3. Sistem Akış Şeması (Sequence Diagram)
+Aşağıdaki diyagram, GitHub üzerinde otomatik olarak render edilmektedir. Kullanıcının sisteme giriş yapması ve **yeni bir şifre kaydederken** sistemin nasıl güvenlik kontrolü yaptığını göstermektedir:
 
 ```mermaid
 sequenceDiagram
@@ -36,14 +64,14 @@ sequenceDiagram
     API-->>UI: JWT Access Token (24 Saatlik)
     
     %% 2. ŞİFRE EKLEME VE ANALİZ (ÖNEMLİ)
-    Note over User DB: 🛡️ Şifre Güvenlik Analizi
+    Note over User, DB: 🛡️ Şifre Güvenlik Analizi
     User->>UI: "Yeni Şifre Ekle" (Hesap + Şifre)
     UI->>API: POST /api/passwords/{uid}
     
     rect rgb(30, 0, 30)
         API->>API: Token Doğrula (Bearer)
         API->>API: Şifre Gücünü Analiz Et (Regex)
-        Note right of API: Kriterler: Uzunluk Büyük Harf Sayı
+        Note right of API: Kriterler: Uzunluk, Büyük Harf, Sayı
     end
     
     API->>DB: Şifreyi Kaydet (Güç Skoru ile)
@@ -56,54 +84,75 @@ sequenceDiagram
     DB-->>API: Şifre Listesi
     API-->>UI: Listeyi Ekranda Göster
 
+| Alan           | Açıklama                                     |
+| -------------- | -------------------------------------------- |
+| Proje Adı      | Velora OS (Purple Edition)                   |
+| Tür            | Akıllı Kişisel Asistan & Güvenli Veri Kasası |
+| Mimari         | Mikroservis                                  |
+| Çalışma Ortamı | Docker & Docker Compose                      |
+| API Türü       | RESTful API                                  |
+| Dokümantasyon  | Swagger (OpenAPI)                            |
 
 
-Katman,Kullanılan Teknolojiler,Durum
-Backend API,"Python FastAPI, SQLAlchemy, Pydantic",✔ Hazır
-API Dokümantasyonu,Swagger UI (OpenAPI 3.0),✔ Hazır
-Frontend UI,"HTML5, TailwindCSS, JavaScript (Glassmorphism)",✔ Hazır
-Veritabanı,PostgreSQL 15 (Kalıcı Depolama),✔ Hazır
-AI Katmanı,"Ollama (Gemma:2b), MCP (Model Context Protocol)",✔ Hazır
-Güvenlik,"Bcrypt (Hashing), Python-Jose (JWT)",✔ Hazır
-İzleme (Monitoring),Prometheus (Metrik Toplama),✔ Hazır
-Orkestrasyon,Docker Compose (Çok Servisli Mimari),✔ Hazır
+| Katman     | Açıklama                                            |
+| ---------- | --------------------------------------------------- |
+| Frontend   | Kullanıcı arayüzünü sunar, API ile haberleşir       |
+| Backend    | İş mantığı, kimlik doğrulama ve veri işlemleri      |
+| Veritabanı | Kullanıcı, görev, not ve şifre verilerini saklar    |
+| AI Katmanı | Verileri analiz eder ve akıllı geri bildirim üretir |
+| Monitoring | Sistem metriklerini toplar ve izler                 |
+
+
+| Katman       | Teknolojiler                   |
+| ------------ | ------------------------------ |
+| Frontend     | HTML5, TailwindCSS, JavaScript |
+| Backend      | Python, FastAPI, Pydantic      |
+| ORM          | SQLAlchemy                     |
+| Veritabanı   | PostgreSQL                     |
+| Güvenlik     | JWT, Bcrypt                    |
+| AI           | Ollama, MCP                    |
+| Monitoring   | Prometheus                     |
+| Orkestrasyon | Docker, Docker Compose         |
+
+
+| Özellik          | Açıklama                                        |
+| ---------------- | ----------------------------------------------- |
+| Kimlik Doğrulama | JWT (Bearer Token)                              |
+| Yetkilendirme    | Token olmadan korumalı endpoint’lere erişim yok |
+| Şifre Saklama    | Bcrypt ile hashleme                             |
+| Veri Erişimi     | Kullanıcı bazlı izolasyon                       |
+
+
+
+
+| Servis          | Port  | Açıklama              |
+| --------------- | ----- | --------------------- |
+| velora_api      | 8000  | Backend API           |
+| velora_frontend | 80    | Web arayüzü           |
+| velora_db       | 5432  | PostgreSQL (internal) |
+| prometheus      | 9090  | Monitoring            |
+| ollama          | 11434 | AI motoru             |
+| mcp_server      | -     | AI tool server        |
 
 
 
 
 
 
-Servis Adı,Port,Açıklama
-velora_api,8000,"Ana Arka Uç; Şifre analizi, JWT doğrulama ve veri işlemlerini yapar."
-velora_frontend,80,Kullanıcı arayüzü; Nginx üzerinde çalışan modern web paneli.
-velora_db,5432,PostgreSQL veritabanı sunucusu. Sadece iç ağa açıktır.
-prometheus,9090,Backend'den gelen metrikleri (/metrics) toplar ve saklar.
-ollama,11434,Yerel LLM (Gemma:2b) motoru; AI analizlerini sağlar.
-mcp_server,-,Yapay zeka araçlarını (Tools) barındıran sunucu.
-velora_agent,-,Otonom ajan; verileri analiz edip /reports klasörüne rapor yazar.
+| Endpoint Türü      | Açıklama                                    |
+| ------------------ | ------------------------------------------- |
+| Public Endpoint    | Kayıt, giriş, sağlık kontrolü               |
+| Protected Endpoint | Görev, not ve şifre işlemleri (JWT gerekli) |
 
 
 
-Güvenlik ve Şifre Yönetimi
-Sistem, kullanıcı verilerini korumak için çok katmanlı bir güvenlik yapısı kullanır:
 
-Şifre Gücü Analizi (Password Strength Meter):
+| Özellik       | Açıklama                |
+| ------------- | ----------------------- |
+| Veri Analizi  | Görev ve not yoğunluğu  |
+| Geri Bildirim | Günlük özet ve öneriler |
+| Entegrasyon   | Ollama + MCP            |
 
-Kullanıcı kasasına yeni bir şifre eklerken, Backend (main.py) şifreyi analiz eder.
-
-Kriterler: Uzunluk (>8), Büyük Harf (A-Z), Rakam (0-9).
-
-Sonuç: "Zayıf", "Orta" veya "Güçlü" etiketiyle veritabanına kaydedilir.
-
-Güvenli Depolama (Hashing):
-
-Kullanıcıların kendi giriş şifreleri veritabanında asla açık metin (plain-text) olarak saklanmaz.
-
-Bcrypt algoritması ile geri döndürülemez şekilde hashlenir.
-
-Yetkilendirme (JWT):
-
-/auth/login dışında kalan tüm API uç noktaları Authorization: Bearer <token> başlığını zorunlu kılar.
 
 
 
