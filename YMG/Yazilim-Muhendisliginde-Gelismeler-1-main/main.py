@@ -24,14 +24,10 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 
 app = FastAPI(title="Velora OS API", version="6.3.0")
-# --- BU KISMI EKLEYİN ---
-
-# main.py içindeki app = FastAPI() altındaki kısmı şöyle değiştir:
 
 app.add_middleware(
     CORSMiddleware,
     # Frontend (Nginx) 80 portunda olduğu için 'http://localhost' eklenmeli.
-    # Garanti olsun diye hepsini ekleyebilirsiniz:
     allow_origins=[
         "http://localhost",           # ÖNEMLİ: Nginx (Frontend) buradan geliyor
         "http://127.0.0.1",           # Alternatif yerel adres
@@ -220,6 +216,18 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     name = u.full_name if u.full_name else "Kullanıcı"
     return {"mesaj": "Giriş Başarılı", "user_id": u.id, "access_token": access_token, "full_name": name}
 
+# --- main.py dosyasında /auth/login altına ekleyin ---
+
+class UserVerify(BaseModel):
+    password: str
+
+@app.post("/auth/verify", tags=["Auth"], dependencies=[Depends(verify_token)])
+def verify_user_password(data: UserVerify, uid: str = Depends(verify_token), db: Session = Depends(get_db)):
+    u = db.query(DBUser).filter(DBUser.id == uid).first()
+    if not u or not verify_password(data.password, u.password):
+        raise HTTPException(401, "Şifre Yanlış")
+    return {"status": "ok"}
+
 # --- TASKS (JWT Required - 20p) ---
 @app.post("/api/tasks/{uid}", tags=["Tasks"], dependencies=[Depends(verify_token)])
 def add_task(uid: str, data: TaskCreate, db: Session = Depends(get_db)):
@@ -283,3 +291,10 @@ def add_pass(uid: str, data: PasswordCreate, db: Session = Depends(get_db)):
 @app.get("/api/passwords/{uid}", response_model=List[Password], tags=["Passwords"], dependencies=[Depends(verify_token)])
 def get_pass(uid: str, db: Session = Depends(get_db)):
     return db.query(DBPassword).filter(DBPassword.user_id == uid).all()
+# main.py dosyasının EN ALTINA bu kısmı ekleyin:
+
+@app.delete("/api/passwords/{uid}/{pass_id}", tags=["Passwords"], dependencies=[Depends(verify_token)])
+def delete_pass(uid: str, pass_id: str, db: Session = Depends(get_db)):
+    p = db.query(DBPassword).filter(DBPassword.id == pass_id, DBPassword.user_id == uid).first()
+    if p: db.delete(p); db.commit()
+    return {"msg": "Silindi"}
