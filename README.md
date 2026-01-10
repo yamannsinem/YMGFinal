@@ -1,2 +1,38 @@
 # YMG_Final
 Bu proje, kullanıcıların unutulmaması gereken notları kaydedebileceği web tabanlı bir uygulamadır. Docker ve Docker Compose ile çalışır, JWT ile korunan ve herkese açık endpoint’ler içerir, veriler basit bir veritabanında saklanır ve Swagger ile dokümante edilmiştir.
+
+
+sequenceDiagram
+    participant User as Kullanıcı
+    participant UI as Frontend (Web)
+    participant API as Backend (FastAPI)
+    participant DB as Veritabanı (PostgreSQL)
+
+    %% 1. GİRİŞ İŞLEMİ
+    Note over User, DB: 🔐 Kimlik Doğrulama Akışı
+    User->>UI: E-posta ve Şifre Girer
+    UI->>API: POST /auth/login
+    API->>DB: Kullanıcıyı Sorgula
+    DB-->>API: Kullanıcı Bilgileri
+    API->>API: Şifre Hash Kontrolü (bcrypt)
+    API->>API: JWT Token Üret
+    API-->>UI: Access Token Döndür
+    
+    %% 2. ŞİFRE YÖNETİMİ (Yeni Eklenen Kısım)
+    Note over User, DB: 🛡️ Şifre Yönetim Akışı
+    User->>UI: "Yeni Şifre Ekle" Butonuna Basar
+    UI->>API: POST /api/passwords/{uid} (Bearer Token)
+    API->>API: Token Doğrula
+    API->>API: Şifre Gücünü Analiz Et (Zayıf/Güçlü)
+    API->>DB: Şifreyi Kaydet
+    DB-->>API: Onay
+    API-->>UI: "Kayıt Başarılı" Yanıtı
+    
+    %% 3. VERİ LİSTELEME
+    Note over User, DB: 📂 Veri Görüntüleme
+    User->>UI: "Notlar" veya "Şifreler" Sekmesini Açar
+    UI->>API: GET /api/notes/{uid} veya /passwords/{uid}
+    API->>DB: Verileri Çek
+    DB-->>API: Veri Listesi
+    API-->>UI: JSON Verisi
+    UI-->>User: Listeyi Ekranda Göster
