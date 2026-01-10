@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Velora OS - Purple Edition</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                colors: { 
+                    brand: { 
+                        500: '#d946ef',  /* Daha canlı Fuşya/Mor */
+                        600: '#c026d3',
+                        dark: '#4a044e'
+                    } 
+                },
+                animation: {
+                    'blob': 'blob 7s infinite',
+                },
+                keyframes: {
+                    blob: {
+                        '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                        '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                        '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                        '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                    }
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body { 
+        background-color: #0f172a; 
+        color: #fff; 
+        overflow-x: hidden; 
+        /* Arka planı biraz daha canlı yapmak için */
+        background-image: radial-gradient(circle at 50% 0%, #2e1065, #0f172a);
+    }
+    
+    /* Gelişmiş Glassmorphism */
+    .glass { 
+        background: rgba(17, 24, 39, 0.4); 
+        backdrop-filter: blur(20px); 
+        -webkit-backdrop-filter: blur(20px); 
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .glass:hover { 
+        background: rgba(17, 24, 39, 0.5); 
+        border-color: rgba(217, 70, 239, 0.3); /* Hover'da mor çerçeve */
+        transform: translateY(-2px); 
+        transition: all 0.3s ease; 
+    }
+    
+    .nav-active { 
+        background: rgba(217, 70, 239, 0.15); 
+        border-left: 3px solid #d946ef; 
+        color: #fff; 
+        text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
+    }
+
+    /* Arkaplandaki Hareketli Işıklar (Blobs) */
+    .blob-bg {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    .blob {
+        position: absolute;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: blob 10s infinite alternate;
+    }
+    .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #701a75; animation-delay: 0s; }
+    .blob-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #4c1d95; animation-delay: 2s; }
+    .blob-3 { top: 40%; left: 40%; width: 400px; height: 400px; background: #be185d; animation-delay: 4s; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #4a044e; border-radius: 10px; }
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col md:flex-row relative">
+
+    <div class="blob-bg">
+        <div class="blob blob-1 rounded-full"></div>
+        <div class="blob blob-2 rounded-full"></div>
+        <div class="blob blob-3 rounded-full"></div>
+    </div>
+
+    <div id="toast" class="fixed top-5 right-5 z-[100] transform translate-x-full transition-transform duration-300">
+        <div class="glass px-4 py-3 rounded-xl flex items-center gap-3 border-l-4 border-brand-500 shadow-xl shadow-brand-500/20">
+            <i class="ri-notification-badge-fill text-brand-500 text-xl"></i>
+            <span id="toast-msg" class="text-sm font-medium">Bildirim</span>
+        </div>
+    </div>
+
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-8 rounded-3xl text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50"></div>
+            
+            <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-brand-500 to-purple-900 rounded-2xl flex items-center justify-center text-4xl font-bold text-white shadow-lg mb-6 shadow-brand-500/40 border border-white/10">V</div>
+            <h1 class="text-3xl font-bold mb-1 tracking-tight">Velora OS</h1>
+            <p class="text-slate-300 text-sm mb-8 font-light">Purple Edition</p>
+
+            <div id="login-form" class="space-y-4">
+                <div class="group relative">
+                    <i class="ri-mail-line absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition"></i>
+                    <input id="l-email" type="email" placeholder="E-Posta" class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-brand-500 focus:bg-slate-900/80 transition text-white placeholder-slate-500">
+                </div>
+                <div class="group relative">
+                    <i class="ri-lock-2-line absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition"></i>
+                    <input id="l-pass" type="password" placeholder="Şifre" class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-brand-500 focus:bg-slate-900/80 transition text-white placeholder-slate-500">
+                </div>
+                <button type="button" onclick="handleLogin()" class="w-full bg-gradient-to-r from-brand-600 to-purple-700 hover:from-brand-500 hover:to-purple-600 py-3.5 rounded-xl font-bold transition text-white shadow-lg shadow-brand-500/25">Giriş Yap</button>
+                <div class="text-xs text-slate-400 mt-6 cursor-pointer hover:text-brand-500 transition" onclick="toggleAuth('reg')">Hesabın yok mu? <span class="font-bold underline">Kayıt Ol</span></div>
+            </div>
+
+            <div id="reg-form" class="space-y-4 hidden">
+                <div class="group relative">
+                    <i class="ri-user-line absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition"></i>
+                    <input id="r-name" type="text" placeholder="Ad Soyad" class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-brand-500 transition text-white">
+                </div>
+                <div class="group relative">
+                    <i class="ri-mail-line absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition"></i>
+                    <input id="r-email" type="email" placeholder="E-Posta" class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-brand-500 transition text-white">
+                </div>
+                <div class="group relative">
+                    <i class="ri-key-2-line absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition"></i>
+                    <input id="r-pass" type="password" placeholder="Şifre" class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-brand-500 transition text-white">
+                </div>
+                <button type="button" onclick="handleRegister()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 py-3.5 rounded-xl font-bold transition text-white shadow-lg shadow-emerald-500/20">Kayıt Ol</button>
+                <div class="text-xs text-slate-400 mt-6 cursor-pointer hover:text-brand-500 transition" onclick="toggleAuth('login')">Zaten hesabın var mı? <span class="font-bold underline">Giriş Yap</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden w-full h-screen flex flex-col md:flex-row">
+        <aside class="w-full md:w-72 glass border-r-0 md:border-r flex md:flex-col justify-between p-6 z-40 md:h-full fixed bottom-0 md:relative">
+            <div class="hidden md:flex items-center gap-4 px-2 mb-10">
+                <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-800 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-brand-500/30">V</div>
+                <div>
+                    <span class="font-bold text-xl tracking-tight block">Velora</span>
+                    <span class="text-[10px] text-brand-500 font-bold tracking-widest uppercase">Workspace</span>
+                </div>
+            </div>
+            
+            <nav class="flex md:flex-col justify-around md:justify-start gap-2 w-full">
+                <button onclick="nav('home')" class="nav-btn p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-4 transition-all" id="btn-home">
+                    <i class="ri-dashboard-line text-xl"></i> 
+                    <span class="hidden md:block text-sm font-medium">Genel Bakış</span>
+                </button>
+                <button onclick="nav('tasks')" class="nav-btn p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-4 transition-all" id="btn-tasks">
+                    <i class="ri-task-line text-xl"></i> 
+                    <span class="hidden md:block text-sm font-medium">Görevler</span>
+                </button>
+            </nav>
+
+            <div class="hidden md:block border-t border-white/10 pt-6 mt-4">
+                <div class="glass p-4 rounded-xl mb-4 bg-gradient-to-br from-purple-900/40 to-transparent border-0">
+                    <p class="text-xs text-slate-400 mb-1">Aktif Kullanıcı</p>
+                    <p class="text-sm font-bold text-white truncate" id="sidebar-user-name">...</p>
+                </div>
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-3 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-xl text-sm transition-all font-medium">
+                    <i class="ri-logout-circle-line text-lg"></i> Güvenli Çıkış
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-10 pb-24 md:pb-10 relative">
+            <header class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Hoş Geldin</h2>
+                    <p class="text-brand-500 font-medium" id="user-display">Kullanıcı</p>
+                </div>
+                <button onclick="logout()" class="md:hidden w-12 h-12 rounded-full glass flex items-center justify-center text-rose-400 shadow-lg"><i class="ri-logout-box-line text-xl"></i></button>
+            </header>
+
+            <div id="view-home" class="view space-y-8">
+                <div class="glass p-8 rounded-[2rem] bg-gradient-to-r from-brand-900/40 via-purple-900/20 to-transparent border border-white/10 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-64 h-64 bg-brand-500/20 blur-[80px] rounded-full group-hover:bg-brand-500/30 transition duration-1000"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="p-3 bg-brand-500/20 rounded-2xl text-brand-500">
+                                <i class="ri-cpu-line text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold">Sistem Durumu</h3>
+                                <p class="text-slate-400 text-sm">Velora AI Engine</p>
+                            </div>
+                        </div>
+                        <p class="text-2xl font-light italic text-slate-200">"Sistem sorunsuz çalışıyor. Yeni görevler için hazırım."</p>
+                        <div class="mt-6 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-emerald-400 tracking-wider">ONLINE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-3xl hover:bg-white/5 transition cursor-pointer" onclick="nav('tasks')">
+                        <div class="flex justify-between items-start mb-8">
+                            <div class="p-3 bg-blue-500/20 rounded-xl text-blue-400"><i class="ri-checkbox-multiple-line text-xl"></i></div>
+                            <i class="ri-arrow-right-up-line text-slate-500"></i>
+                        </div>
+                        <h4 class="text-3xl font-bold mb-1" id="stat-task-count">-</h4>
+                        <p class="text-slate-400 text-sm">Bekleyen Görev</p>
+                    </div>
+                    <div class="glass p-6 rounded-3xl">
+                        <div class="flex justify-between items-start mb-8">
+                            <div class="p-3 bg-orange-500/20 rounded-xl text-orange-400"><i class="ri-shield-keyhole-line text-xl"></i></div>
+                            <i class="ri-more-fill text-slate-500"></i>
+                        </div>
+                        <h4 class="text-3xl font-bold mb-1">Güvenli</h4>
+                        <p class="text-slate-400 text-sm">Bağlantı Şifreli</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="view-tasks" class="view hidden space-y-6">
+                 <div class="glass p-3 rounded-2xl flex gap-3 shadow-lg shadow-black/20">
+                    <div class="flex-1 relative">
+                        <i class="ri-add-circle-line absolute left-4 top-3.5 text-slate-400 text-xl"></i>
+                        <input id="inp-task" type="text" placeholder="Yeni bir görev ekle..." class="w-full bg-transparent pl-12 pr-4 py-3 outline-none text-white placeholder-slate-500 font-medium">
+                    </div>
+                    <button onclick="addTask()" class="bg-brand-600 px-8 py-2 rounded-xl font-bold hover:bg-brand-500 transition text-white shadow-lg shadow-brand-500/20 flex items-center gap-2">
+                        <span>Ekle</span> <i class="ri-send-plane-fill"></i>
+                    </button>
+                </div>
+                <div id="list-tasks" class="grid gap-3"></div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    // DÜZELTİLEN PORT: 8000
+    const API = "http://localhost:8000"; 
+    
+    let token = localStorage.getItem('token');
+    let uid = localStorage.getItem('uid');
+
+    window.onload = function() {
+        if(token && uid) {
+            initApp();
+        } else {
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+    };
+
+    function initApp() {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-screen').classList.remove('hidden');
+        const name = localStorage.getItem('name') || 'Kullanıcı';
+        document.getElementById('user-display').innerText = name;
+        document.getElementById('sidebar-user-name').innerText = name;
+        loadTasks();
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toast-msg').innerText = msg;
+        t.classList.remove('translate-x-full');
+        setTimeout(() => t.classList.add('translate-x-full'), 3000);
+    }
+    
+    function toggleAuth(type) {
+        document.getElementById('login-form').classList.toggle('hidden', type === 'reg');
+        document.getElementById('reg-form').classList.toggle('hidden', type !== 'reg');
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+    
+    function nav(viewId) {
+        document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+        document.getElementById('view-' + viewId).classList.remove('hidden');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active', 'text-white'));
+        document.getElementById('btn-' + viewId).classList.add('nav-active', 'text-white');
+    }
+
+    // --- API FONKSİYONLARI ---
+    async function handleRegister() {
+        const name = document.getElementById('r-name').value;
+        const email = document.getElementById('r-email').value;
+        const pass = document.getElementById('r-pass').value;
+
+        if(!name || !email || !pass) { showToast("⚠️ Tüm alanları doldurun!"); return; }
+
+        try {
+            const res = await fetch(`${API}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ full_name: name, email: email, password: pass })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                showToast("✅ Kayıt Başarılı! Giriş yapınız.");
+                toggleAuth('login');
+                document.getElementById('l-email').value = email;
+            } else {
+                showToast("❌ " + (data.detail || "Kayıt Başarısız"));
+            }
+        } catch(e) { showToast("❌ Sunucu hatası!"); }
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('l-email').value;
+        const pass = document.getElementById('l-pass').value;
+
+        if(!email || !pass) { showToast("⚠️ Bilgileri girin!"); return; }
+
+        try {
+            const res = await fetch(`${API}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: pass })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('uid', data.user_id);
+                localStorage.setItem('name', data.full_name);
+                showToast("✅ Giriş Başarılı!");
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast("❌ " + (data.detail || "Giriş Hatalı"));
+            }
+        } catch(e) { showToast("❌ Sunucu hatası!"); }
+    }
+
+    async function loadTasks() {
+        if(!uid) return;
+        try {
+            const res = await fetch(`${API}/api/tasks/${uid}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if(res.ok) {
+                const tasks = await res.json();
+                document.getElementById('stat-task-count').innerText = tasks.length;
+                document.getElementById('list-tasks').innerHTML = tasks.map(t => `
+                    <div class="glass p-4 rounded-xl flex items-center justify-between group hover:bg-white/5 transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-2 h-2 rounded-full ${t.is_completed ? 'bg-emerald-500' : 'bg-brand-500'}"></div>
+                            <span class="${t.is_completed ? 'line-through text-slate-500' : 'text-slate-200'} font-medium">${t.title}</span>
+                        </div>
+                        <button onclick="deleteTask('${t.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition opacity-0 group-hover:opacity-100">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        } catch(e) { console.log(e); }
+    }
+    
+    async function addTask() {
+        const val = document.getElementById('inp-task').value;
+        if(!val) return;
+        await fetch(`${API}/api/tasks/${uid}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({title: val})
+        });
+        document.getElementById('inp-task').value = "";
+        loadTasks();
+    }
+
+    async function deleteTask(tid) {
+        if(!confirm('Silinsin mi?')) return;
+        await fetch(`${API}/api/tasks/${uid}/${tid}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        loadTasks();
+    }
+</script>
+</body>
+</html>

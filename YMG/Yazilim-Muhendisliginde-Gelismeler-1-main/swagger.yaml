@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: Velora API
+  description: Velora Mobil Uygulaması Backend API Dokümantasyonu
+  version: 1.2.0
+servers:
+  - url: http://127.0.0.1:8000
+tags:
+  - name: Auth
+  - name: Tasks
+  - name: Notes
+  - name: Passwords
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Yeni kullanıcı kaydı
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: {type: string}
+                password: {type: string}
+                full_name: {type: string}
+      responses:
+        '201': {description: Kayıt başarılı}
+
+  /api/tasks/{user_id}:
+    get:
+      tags: [Tasks]
+      summary: Görevleri listele (JWT Gerekli)
+      parameters: [{name: user_id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: OK}}
+
+  /api/notes/{user_id}:
+    get:
+      tags: [Notes]
+      summary: Notları listele
+      parameters: [{name: user_id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: OK}}
+    post:
+      tags: [Notes]
+      summary: Yeni not ekle
+      parameters: [{name: user_id, in: path, required: true, schema: {type: string}}]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: {type: string}
+                content: {type: string}
+                category: {type: string}
+      responses: {'200': {description: Oluşturuldu}}
