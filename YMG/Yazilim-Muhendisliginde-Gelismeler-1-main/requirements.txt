@@ -8,5 +8,6 @@ prometheus_client
 mcp
 ollama
 # Güvenlik için eklenenler:
+bcrypt==4.0.1
 passlib[bcrypt]
 python-jose[cryptography]
