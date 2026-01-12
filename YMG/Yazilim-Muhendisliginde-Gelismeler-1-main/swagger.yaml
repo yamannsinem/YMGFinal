@@ -28,23 +28,23 @@ paths:
       responses:
         '201': {description: Kayıt başarılı}
 
-  /api/tasks/{user_id}:
+  /api/tasks/{uid}:
     get:
       tags: [Tasks]
       summary: Görevleri listele (JWT Gerekli)
-      parameters: [{name: user_id, in: path, required: true, schema: {type: string}}]
+      parameters: [{name: uid, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: OK}}
 
-  /api/notes/{user_id}:
+  /api/notes/{uid}:
     get:
       tags: [Notes]
       summary: Notları listele
-      parameters: [{name: user_id, in: path, required: true, schema: {type: string}}]
+      parameters: [{name: uid, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: OK}}
     post:
       tags: [Notes]
       summary: Yeni not ekle
-      parameters: [{name: user_id, in: path, required: true, schema: {type: string}}]
+      parameters: [{name: uid, in: path, required: true, schema: {type: string}}]
       requestBody:
         content:
           application/json:
